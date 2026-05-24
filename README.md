@@ -106,6 +106,7 @@ DATABASE_PATH=/app/data/pumpscreener.json
 MAX_RULES=20
 MAX_INTERVAL=30m
 MAX_POINTS_PER_SYMBOL=4096
+PRICE_BUCKET_INTERVAL=1s
 BLACKLIST=USDCUSDT
 ```
 
@@ -120,4 +121,4 @@ src/infrastructure  Bybit, Telegram, HTTP, storage
 src/core            config, uptime, duration helpers, app state
 ```
 
-Для слабого сервера код держит ограниченные каналы, хранит компактные окна цен и проверяет только правила для символа, по которому пришел новый тик.
+Для слабого сервера код держит ограниченные каналы и хранит не каждый тик, а компактные OHLC buckets. По умолчанию `PRICE_BUCKET_INTERVAL=1s`: все тики внутри одной секунды обновляют один bucket.

@@ -21,9 +21,9 @@ type holdState struct {
 	signal domain.Signal
 }
 
-func NewScreener(rules []domain.Rule, maxPointsPerSymbol int) *Screener {
+func NewScreener(rules []domain.Rule, maxPointsPerSymbol int, bucketInterval time.Duration) *Screener {
 	book := NewRuleBook(rules)
-	windows := NewPriceWindows(0, maxPointsPerSymbol)
+	windows := NewPriceWindows(0, maxPointsPerSymbol, bucketInterval)
 	windows.SetIntervals(book.Intervals())
 
 	return &Screener{

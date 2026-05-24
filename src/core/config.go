@@ -11,16 +11,17 @@ import (
 const HardMaxRuleInterval = 30 * time.Minute
 
 type Config struct {
-	Port               string
-	TelegramBotToken   string
-	TelegramChatID     string
-	DatabasePath       string
-	BybitRestURL       string
-	BybitWebSocketURL  string
-	MaxRules           int
-	MaxInterval        time.Duration
-	MaxPointsPerSymbol int
-	DefaultBlacklist   []string
+	Port                string
+	TelegramBotToken    string
+	TelegramChatID      string
+	DatabasePath        string
+	BybitRestURL        string
+	BybitWebSocketURL   string
+	MaxRules            int
+	MaxInterval         time.Duration
+	MaxPointsPerSymbol  int
+	PriceBucketInterval time.Duration
+	DefaultBlacklist    []string
 }
 
 func LoadConfig() Config {
@@ -32,16 +33,17 @@ func LoadConfig() Config {
 	}
 
 	return Config{
-		Port:               env("PORT", "8000"),
-		TelegramBotToken:   env("TELEGRAM_BOT_TOKEN", ""),
-		TelegramChatID:     env("TELEGRAM_CHAT_ID", ""),
-		DatabasePath:       env("DATABASE_PATH", "pumpscreener.db"),
-		BybitRestURL:       env("BYBIT_REST_URL", "https://api.bybit.com"),
-		BybitWebSocketURL:  env("BYBIT_WS_URL", "wss://stream.bybit.com/v5/public/linear"),
-		MaxRules:           envInt("MAX_RULES", 20),
-		MaxInterval:        maxInterval,
-		MaxPointsPerSymbol: envInt("MAX_POINTS_PER_SYMBOL", 4096),
-		DefaultBlacklist:   envList("BLACKLIST"),
+		Port:                env("PORT", "8000"),
+		TelegramBotToken:    env("TELEGRAM_BOT_TOKEN", ""),
+		TelegramChatID:      env("TELEGRAM_CHAT_ID", ""),
+		DatabasePath:        env("DATABASE_PATH", "pumpscreener.db"),
+		BybitRestURL:        env("BYBIT_REST_URL", "https://api.bybit.com"),
+		BybitWebSocketURL:   env("BYBIT_WS_URL", "wss://stream.bybit.com/v5/public/linear"),
+		MaxRules:            envInt("MAX_RULES", 20),
+		MaxInterval:         maxInterval,
+		MaxPointsPerSymbol:  envInt("MAX_POINTS_PER_SYMBOL", 4096),
+		PriceBucketInterval: envDuration("PRICE_BUCKET_INTERVAL", time.Second),
+		DefaultBlacklist:    envList("BLACKLIST"),
 	}
 }
 

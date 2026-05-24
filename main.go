@@ -40,7 +40,8 @@ func main() {
 		log.Fatalf("load rules: %v", err)
 	}
 	log.Printf("rules loaded: %d", len(rules))
-	screener := application.NewScreener(rules, cfg.MaxPointsPerSymbol)
+	screener := application.NewScreener(rules, cfg.MaxPointsPerSymbol, cfg.PriceBucketInterval)
+	log.Printf("price buckets: interval=%s max_per_symbol=%d", cfg.PriceBucketInterval, cfg.MaxPointsPerSymbol)
 	bybitClient := bybit.NewClient(cfg.BybitRestURL)
 	blacklist, err := store.ListBlacklist(ctx)
 	if err != nil {
