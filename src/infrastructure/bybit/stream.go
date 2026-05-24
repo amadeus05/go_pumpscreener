@@ -15,10 +15,11 @@ import (
 
 type Stream struct {
 	wsURL string
+	clock Clock
 }
 
-func NewStream(wsURL string) *Stream {
-	return &Stream{wsURL: wsURL}
+func NewStream(wsURL string, clock Clock) *Stream {
+	return &Stream{wsURL: wsURL, clock: clock}
 }
 
 func (s *Stream) Run(ctx context.Context, symbols []string, ticks chan<- domain.Tick) error {
@@ -73,7 +74,7 @@ func (s *Stream) connectOnce(ctx context.Context, symbols []string, ticks chan<-
 			continue
 		}
 
-		now := time.Now().UTC()
+		now := s.clock.Now()
 		for _, item := range message.Items() {
 			price, err := strconv.ParseFloat(item.LastPrice, 64)
 			if err != nil || price <= 0 {

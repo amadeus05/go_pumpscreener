@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -71,11 +72,58 @@ func (c *Client) LinearUSDTPerpetuals(ctx context.Context) ([]string, error) {
 	return symbols, nil
 }
 
+func (c *Client) ServerTime(ctx context.Context) (time.Time, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v5/market/time", nil)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return time.Time{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return time.Time{}, fmt.Errorf("bybit time returned status %d", resp.StatusCode)
+	}
+
+	var payload timeResponse
+	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return time.Time{}, err
+	}
+	if payload.RetCode != 0 {
+		return time.Time{}, fmt.Errorf("bybit time error %d: %s", payload.RetCode, payload.RetMsg)
+	}
+
+	if len(payload.Result.TimeNano) >= 13 {
+		millis, err := strconv.ParseInt(payload.Result.TimeNano[:13], 10, 64)
+		if err == nil {
+			return time.UnixMilli(millis).UTC(), nil
+		}
+	}
+
+	seconds, err := strconv.ParseInt(payload.Result.TimeSecond, 10, 64)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Unix(seconds, 0).UTC(), nil
+}
+
 type instrumentsResponse struct {
 	RetCode int    `json:"retCode"`
 	RetMsg  string `json:"retMsg"`
 	Result  struct {
 		List []instrument `json:"list"`
+	} `json:"result"`
+}
+
+type timeResponse struct {
+	RetCode int    `json:"retCode"`
+	RetMsg  string `json:"retMsg"`
+	Result  struct {
+		TimeSecond string `json:"timeSecond"`
+		TimeNano   string `json:"timeNano"`
 	} `json:"result"`
 }
 

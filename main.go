@@ -43,6 +43,13 @@ func main() {
 	screener := application.NewScreener(rules, cfg.MaxPointsPerSymbol, cfg.PriceBucketInterval)
 	log.Printf("price buckets: interval=%s max_per_symbol=%d", cfg.PriceBucketInterval, cfg.MaxPointsPerSymbol)
 	bybitClient := bybit.NewClient(cfg.BybitRestURL)
+	exchangeNow, err := bybitClient.ServerTime(ctx)
+	if err != nil {
+		log.Fatalf("sync bybit time: %v", err)
+	}
+	clock := bybit.NewClock(exchangeNow, time.Now().UTC())
+	log.Printf("bybit time synced: exchange=%s offset=%s", exchangeNow.Format(time.RFC3339Nano), clock.Offset())
+
 	blacklist, err := store.ListBlacklist(ctx)
 	if err != nil {
 		log.Fatalf("load blacklist: %v", err)
@@ -68,7 +75,7 @@ func main() {
 		log.Printf("telegram disabled: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is empty; signals will be written to log")
 	}
 	web := httpserver.New(cfg.Port, state)
-	stream := bybit.NewStream(cfg.BybitWebSocketURL)
+	stream := bybit.NewStream(cfg.BybitWebSocketURL, clock)
 
 	go runHTTP(ctx, web)
 	if bot.Enabled() {
