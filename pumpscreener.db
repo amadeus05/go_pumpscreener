@@ -1,0 +1,89 @@
+{
+  "next_rule_id": 2,
+  "rules": [
+    {
+      "id": 1,
+      "direction": "up",
+      "percent": 8,
+      "interval_seconds": 1800,
+      "cooldown_seconds": 180,
+      "enabled": true,
+      "created_at": "2026-05-24T16:15:00Z"
+    },
+    {
+      "id": 2,
+      "direction": "up",
+      "percent": 2,
+      "interval_seconds": 120,
+      "cooldown_seconds": 60,
+      "enabled": true,
+      "created_at": "2026-05-24T16:15:00Z"
+    }
+  ],
+  "blacklist": [],
+  "signals": [
+    {
+      "rule_id": 2,
+      "symbol": "BSBUSDT",
+      "price": 1.0898,
+      "move": 2.146405473802619,
+      "triggered_at": "2026-05-24T13:17:09Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "BSBUSDT",
+      "price": 1.0792,
+      "move": 2.12927037001987,
+      "triggered_at": "2026-05-24T13:18:37Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "BSBUSDT",
+      "price": 1.0943,
+      "move": 3.5582473738998845,
+      "triggered_at": "2026-05-24T13:19:37Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "PLAYSOUTUSDT",
+      "price": 0.07579,
+      "move": 2.087823275862063,
+      "triggered_at": "2026-05-24T13:20:59Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "BSBUSDT",
+      "price": 1.0929,
+      "move": 2.025765496639288,
+      "triggered_at": "2026-05-24T13:21:56Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "PLAYSOUTUSDT",
+      "price": 0.07672,
+      "move": 2.9798657718120802,
+      "triggered_at": "2026-05-24T13:22:00Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "PLAYSOUTUSDT",
+      "price": 0.07765,
+      "move": 2.4947201689545975,
+      "triggered_at": "2026-05-24T13:23:00Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "PLAYSOUTUSDT",
+      "price": 0.07836,
+      "move": 2.1243320735044864,
+      "triggered_at": "2026-05-24T13:24:00Z"
+    },
+    {
+      "rule_id": 2,
+      "symbol": "BSBUSDT",
+      "price": 1.0736,
+      "move": 2.0435319836517514,
+      "triggered_at": "2026-05-24T13:31:24Z"
+    }
+  ]
+}
