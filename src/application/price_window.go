@@ -110,10 +110,10 @@ func (w *symbolWindow) SetIntervals(intervals []time.Duration) {
 }
 
 func (w *symbolWindow) Add(tick domain.Tick, maxWindow time.Duration, maxPoints int) {
-	bucket, changedExtremes := w.addToBucket(tick)
+	bucket, isNewBucket, changedExtremes := w.addToBucket(tick)
 	if changedExtremes {
 		w.rebuildQueues()
-	} else {
+	} else if isNewBucket {
 		for _, window := range w.intervals {
 			window.mins.Push(pricePoint{price: bucket.low, at: bucket.start})
 			window.maxes.Push(pricePoint{price: bucket.high, at: bucket.start})
@@ -155,7 +155,7 @@ func (w *symbolWindow) trim(cutoff time.Time, maxPoints int, now time.Time) {
 	}
 }
 
-func (w *symbolWindow) addToBucket(tick domain.Tick) (priceBucket, bool) {
+func (w *symbolWindow) addToBucket(tick domain.Tick) (priceBucket, bool, bool) {
 	start := tick.Time.Truncate(w.bucketInterval)
 	lastIndex := len(w.buckets) - 1
 	if lastIndex >= 0 && w.buckets[lastIndex].start.Equal(start) {
@@ -170,7 +170,7 @@ func (w *symbolWindow) addToBucket(tick domain.Tick) (priceBucket, bool) {
 			changedExtremes = true
 		}
 		bucket.close = tick.Price
-		return *bucket, changedExtremes
+		return *bucket, false, changedExtremes
 	}
 
 	bucket := priceBucket{
@@ -181,7 +181,7 @@ func (w *symbolWindow) addToBucket(tick domain.Tick) (priceBucket, bool) {
 		close: tick.Price,
 	}
 	w.buckets = append(w.buckets, bucket)
-	return bucket, false
+	return bucket, true, false
 }
 
 func (w *symbolWindow) rebuildQueues() {
