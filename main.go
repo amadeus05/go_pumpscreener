@@ -79,6 +79,9 @@ func main() {
 	if bot.Enabled() {
 		notifier = bot
 		log.Printf("telegram enabled")
+		if err := bot.SendMessage(ctx, "Pumpscreener started"); err != nil {
+			log.Printf("telegram startup message: %v", err)
+		}
 	} else {
 		log.Printf("telegram disabled: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is empty; signals will be written to log")
 	}
