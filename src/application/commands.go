@@ -67,7 +67,7 @@ func (c *Commands) AddRule(ctx context.Context, directionValue, percentValue, in
 		return "", err
 	}
 	if len(modeValues) > 0 {
-		mode, hold, err := parseMode(modeValues)
+		mode, hold, err := parseMode(modeValues, interval)
 		if err != nil {
 			return "", err
 		}
@@ -104,6 +104,10 @@ func (c *Commands) ListRules(ctx context.Context) (string, error) {
 		lines = append(lines, fmt.Sprintf("#%d [%s] %s %.2f%% за %s, cooldown %s, mode %s%s", rule.ID, status, rule.Direction, rule.Percent, core.HumanDuration(rule.Interval), core.HumanDuration(rule.Cooldown), rule.EffectiveMode(), formatHold(rule)))
 	}
 	return strings.Join(lines, "\n"), nil
+}
+
+func (c *Commands) RuleItems(ctx context.Context) ([]domain.Rule, error) {
+	return c.rules.ListRules(ctx)
 }
 
 func (c *Commands) DeleteRule(ctx context.Context, idValue string) (string, error) {
@@ -219,12 +223,12 @@ func parseRuleID(value string) (domain.RuleID, error) {
 	return domain.RuleID(id), nil
 }
 
-func parseMode(values []string) (domain.RuleMode, time.Duration, error) {
+func parseMode(values []string, defaultHold time.Duration) (domain.RuleMode, time.Duration, error) {
 	if len(values) == 0 {
 		return domain.RuleModeInstant, 0, nil
 	}
 	if len(values) != 1 && len(values) != 2 {
-		return "", 0, fmt.Errorf("mode format: instant or hold 3m")
+		return "", 0, fmt.Errorf("mode format: instant, hold, or hold 3m")
 	}
 
 	mode, err := domain.ParseRuleMode(values[0])
@@ -234,8 +238,11 @@ func parseMode(values []string) (domain.RuleMode, time.Duration, error) {
 	if mode == domain.RuleModeInstant {
 		return mode, 0, nil
 	}
-	if len(values) != 2 {
-		return "", 0, fmt.Errorf("hold mode requires duration, example: hold 3m")
+	if len(values) == 1 {
+		if defaultHold <= 0 {
+			return "", 0, fmt.Errorf("hold duration is empty")
+		}
+		return mode, defaultHold, nil
 	}
 
 	hold, err := core.ParseDuration(values[1])
