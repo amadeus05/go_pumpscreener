@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -18,6 +19,13 @@ import (
 	"pumpscreener/src/infrastructure/telegram"
 )
 
+type appStore interface {
+	application.RuleRepository
+	application.BlacklistRepository
+	application.SignalRepository
+	EnsureBlacklist(ctx context.Context, symbols []string) error
+}
+
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -26,11 +34,11 @@ func main() {
 	state := core.NewAppState()
 	log.Printf("pumpscreener starting")
 
-	store, err := storage.Open(cfg.DatabasePath)
+	store, storageDescription, err := openStore(ctx, cfg)
 	if err != nil {
 		log.Fatalf("open storage: %v", err)
 	}
-	log.Printf("storage ready: %s", cfg.DatabasePath)
+	log.Printf("storage ready: %s", storageDescription)
 	if err := store.EnsureBlacklist(ctx, cfg.DefaultBlacklist); err != nil {
 		log.Fatalf("seed blacklist: %v", err)
 	}
@@ -84,6 +92,19 @@ func main() {
 	go runBybitStream(ctx, state, stream, registry.Symbols(), ticks)
 
 	processTicks(ctx, state, screener, store, notifier, registry, ticks)
+}
+
+func openStore(ctx context.Context, cfg core.Config) (appStore, string, error) {
+	switch cfg.StorageBackend {
+	case "file", "":
+		store, err := storage.Open(cfg.DatabasePath)
+		return store, fmt.Sprintf("file:%s", cfg.DatabasePath), err
+	case "supabase", "postgres", "postgresql":
+		store, err := storage.OpenPostgres(ctx, cfg.DatabaseURL)
+		return store, "supabase/postgres", err
+	default:
+		return nil, "", fmt.Errorf("unsupported storage backend %q", cfg.StorageBackend)
+	}
 }
 
 func runHTTP(ctx context.Context, server *httpserver.Server) {

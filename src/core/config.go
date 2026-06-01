@@ -14,7 +14,9 @@ type Config struct {
 	Port                string
 	TelegramBotToken    string
 	TelegramChatID      string
+	StorageBackend      string
 	DatabasePath        string
+	DatabaseURL         string
 	BybitRestURL        string
 	BybitWebSocketURL   string
 	MaxRules            int
@@ -36,7 +38,9 @@ func LoadConfig() Config {
 		Port:                env("PORT", "8000"),
 		TelegramBotToken:    env("TELEGRAM_BOT_TOKEN", ""),
 		TelegramChatID:      env("TELEGRAM_CHAT_ID", ""),
+		StorageBackend:      strings.ToLower(env("STORAGE_BACKEND", "file")),
 		DatabasePath:        env("DATABASE_PATH", "pumpscreener.db"),
+		DatabaseURL:         env("SUPABASE_DB_URL", env("DATABASE_URL", "")),
 		BybitRestURL:        env("BYBIT_REST_URL", "https://api.bybit.com"),
 		BybitWebSocketURL:   env("BYBIT_WS_URL", "wss://stream.bybit.com/v5/public/linear"),
 		MaxRules:            envInt("MAX_RULES", 20),

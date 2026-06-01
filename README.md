@@ -102,6 +102,7 @@ Environment variables:
 ```text
 TELEGRAM_BOT_TOKEN=...
 TELEGRAM_CHAT_ID=...
+STORAGE_BACKEND=file
 DATABASE_PATH=/app/data/pumpscreener.json
 MAX_RULES=20
 MAX_INTERVAL=30m
@@ -109,6 +110,24 @@ MAX_POINTS_PER_SYMBOL=4096
 PRICE_BUCKET_INTERVAL=1s
 BLACKLIST=USDCUSDT
 ```
+
+## Supabase/Postgres storage
+
+Default storage is still the local JSON file:
+
+```text
+STORAGE_BACKEND=file
+DATABASE_PATH=/app/data/pumpscreener.json
+```
+
+To use Supabase, take the Postgres connection string from Supabase project settings and set:
+
+```text
+STORAGE_BACKEND=supabase
+SUPABASE_DB_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres?sslmode=require&default_query_exec_mode=simple_protocol
+```
+
+`DATABASE_URL` also works if `SUPABASE_DB_URL` is not set. The app creates the `rules`, `blacklist`, and `signals` tables automatically on startup.
 
 `PORT` Render задает сам. Если Telegram-переменные пустые, сигналы будут писаться в логи Render.
 
